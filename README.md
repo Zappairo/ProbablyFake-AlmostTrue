@@ -25,6 +25,13 @@ cd "ProbablyFake AlmostTrue"
 pip install -r requirements.txt
 ```
 
+**Note**: If you encounter issues with PyTorch installation, you may need to install it separately:
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+```
+
+**For deployment on cloud platforms** (Streamlit Cloud, Heroku, etc.), make sure the `requirements.txt` file is in the root directory.
+
 ## Usage
 
 1. Run the Streamlit application:
@@ -60,10 +67,19 @@ The app comes with a pre-loaded example text that demonstrates typical fake news
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.8+
 - Streamlit
 - Transformers (Hugging Face)
+- PyTorch
+- Tokenizers
 - Regular expressions support
+
+**Dependencies included in requirements.txt:**
+- `streamlit>=1.28.0`
+- `transformers>=4.30.0`
+- `torch>=2.0.0`
+- `tokenizers>=0.13.0`
+- `regex`
 
 ## Limitations
 
@@ -71,6 +87,17 @@ The app comes with a pre-loaded example text that demonstrates typical fake news
 - AI model performance depends on training data characteristics
 - Simple rules are basic heuristics and may not catch sophisticated misinformation
 - Should be used as a supplementary tool, not a definitive source of truth
+- Requires internet connection for the first model download (approximately 500MB)
+
+## Troubleshooting
+
+**Module not found errors during deployment:**
+- Ensure all dependencies are listed in `requirements.txt`
+- For Streamlit Cloud: make sure the repository has `requirements.txt` in the root directory
+
+**Long loading times:**
+- The AI model downloads on first use (~500MB), subsequent runs will be faster
+- Consider using `@st.cache_resource` for production deployments
 
 ## Contributing
 
