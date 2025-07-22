@@ -1,16 +1,14 @@
 # ProbablyFake AlmostTrue
 
-A Streamlit-based fake news detection tool that combines AI-powered analysis with simple rule-based scoring to help identify potentially unreliable news content.
+A Streamlit-based fake news detection tool that combines AI-powered analysis with fact-checking APIs to help identify potentially unreliable news content.
 
 ## Features
 
 - **AI Analysis**: Uses a pre-trained RoBERTa model (`hamzab/roberta-fake-news-classification`) for sophisticated fake news detection
-- **Simple Rules Analysis**: Implements basic heuristics to score text based on:
-  - Sensational words detection
-  - Absence of reliable sources
-  - Excessive use of capital letters
+- **Google Fact Check API**: Cross-references claims with Google's fact-checking database
+- **NewsAPI Integration**: Finds related news articles for verification
+- **Wikipedia Search**: Provides additional context from Wikipedia
 - **Interactive Web Interface**: Built with Streamlit for easy text input and real-time analysis
-- **Dual Scoring System**: Provides both AI confidence scores and rule-based scores (0-100)
 
 ## Installation
 
@@ -25,12 +23,40 @@ cd "ProbablyFake AlmostTrue"
 pip install -r requirements.txt
 ```
 
+3. Set up your API keys:
+   - Copy `.env.example` to `.env`
+   - Fill in your API keys in the `.env` file:
+     - Get a Google Fact Check API key from [Google Cloud Console](https://console.cloud.google.com/)
+     - Get a NewsAPI key from [NewsAPI.org](https://newsapi.org/)
+
 **Note**: If you encounter issues with PyTorch installation, you may need to install it separately:
 ```bash
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 ```
 
-**For deployment on cloud platforms** (Streamlit Cloud, Heroku, etc.), make sure the `requirements.txt` file is in the root directory.
+## Configuration
+
+### For Local Development
+Create a `.env` file in the root directory with your API keys:
+```
+GOOGLE_FACTCHECK_API_KEY=your_google_key_here
+NEWSAPI_KEY=your_newsapi_key_here
+```
+
+### For Streamlit Cloud Deployment
+1. Go to [share.streamlit.io](https://share.streamlit.io)
+2. Connect your GitHub repository
+3. In the "Advanced settings", add your secrets:
+   ```
+   [secrets]
+   GOOGLE_FACTCHECK_API_KEY = "your_google_key_here"
+   NEWSAPI_KEY = "your_newsapi_key_here"
+   ```
+
+### For Other Cloud Platforms
+Set environment variables:
+- `GOOGLE_FACTCHECK_API_KEY`
+- `NEWSAPI_KEY`
 
 ## Usage
 
@@ -43,7 +69,11 @@ streamlit run app.py
 
 3. Enter or paste text in English that you want to analyze
 
-4. Click "Analyze" to get both AI-powered and rule-based assessments
+4. Click "Analyze" to get:
+   - AI-powered fake news assessment
+   - Fact-check results from Google's database
+   - Related news articles
+   - Wikipedia context
 
 5. Use "Reset" to clear the input and start over
 
@@ -90,6 +120,11 @@ The app comes with a pre-loaded example text that demonstrates typical fake news
 - Requires internet connection for the first model download (approximately 500MB)
 
 ## Troubleshooting
+
+**StreamlitSecretNotFoundError:**
+- Make sure your secrets are properly configured in Streamlit Cloud
+- Check that the secret names match exactly: `GOOGLE_FACTCHECK_API_KEY` and `NEWSAPI_KEY`
+- For local development, ensure your `.env` file exists and contains the API keys
 
 **Module not found errors during deployment:**
 - Ensure all dependencies are listed in `requirements.txt`
