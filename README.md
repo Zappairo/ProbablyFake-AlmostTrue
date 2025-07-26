@@ -6,7 +6,7 @@ A Streamlit-based fake news detection tool that combines AI-powered analysis wit
 
 - **AI Analysis**: Uses a pre-trained RoBERTa model (`hamzab/roberta-fake-news-classification`) for sophisticated fake news detection
 - **Google Fact Check API**: Cross-references claims with Google's fact-checking database
-- **NewsAPI Integration**: Finds related news articles for verification
+- **NewsAPI Integration**: Finds related news articles for verification with keywords entered
 - **Wikipedia Search**: Provides additional context from Wikipedia
 - **Interactive Web Interface**: Built with Streamlit for easy text input and real-time analysis
 
@@ -114,10 +114,8 @@ The app comes with a pre-loaded example text that demonstrates typical fake news
 ## Limitations
 
 - Designed specifically for English text
-- AI model performance depends on training data characteristics
-- Simple rules are basic heuristics and may not catch sophisticated misinformation
+- AI model performance depends on training data characteristics keep that in mind it's not accurate at all
 - Should be used as a supplementary tool, not a definitive source of truth
-- Requires internet connection for the first model download (approximately 500MB)
 
 ## Troubleshooting
 
