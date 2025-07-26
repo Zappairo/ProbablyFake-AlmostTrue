@@ -6,6 +6,9 @@ import os
 
 MODEL_NAME = "hamzab/roberta-fake-news-classification"
 
+# Utiliser toute la largeur de la fenêtre
+st.set_page_config(layout="wide")
+
 @st.cache_resource
 def get_fake_news_pipeline():
     return pipeline("text-classification", model=MODEL_NAME, tokenizer=MODEL_NAME)
@@ -121,15 +124,20 @@ if st.session_state.first_load and st.session_state.input_text == "":
 else:
     default_text = st.session_state.input_text
 
-text = st.text_area("Paste or enter text to analyze (English):", height=200, value=default_text, key="input_text_area", max_chars=500)
+# Saisie du nom du poste
+col1, col2, col3, col4, col5 = st.columns([1,2,3,2,1])
+with col3:
+    text = st.text_area("Paste or enter text to analyze (English):", height=200, value=default_text, key="input_text_area", max_chars=500)
 
 # Synchroniser automatiquement le texte avec la session à chaque changement
 if text != st.session_state.input_text and not st.session_state.first_load:
     st.session_state.input_text = text
 
-col1, col2 = st.columns([1,1])
-analyze_clicked = col1.button("Analyze")
-reset_clicked = col2.button("Reset")
+col1, col2, col3, col4, col5 = st.columns([1,2,3,2,1])
+with col2:
+    analyze_clicked = st.button("Analyze")
+with col4:
+    reset_clicked = st.button("Reset")
 
 if analyze_clicked:
     # Forcer la mise à jour du texte et nettoyer l'état précédent
@@ -148,52 +156,57 @@ if st.session_state.show_results:
     # S'assurer qu'on utilise le bon texte pour l'analyse
     current_text = st.session_state.input_text.strip()
     if current_text:
-        st.subheader("AI Analysis (RoBERTa)")
-        with st.spinner("AI analysis in progress..."):
-            label_display, ia_confidence, ia_exp = ia_fake_news_score(current_text)
-            st.metric("AI Result", label_display, delta=f"Confidence: {ia_confidence:.1f}%")
-            st.write(ia_exp)
-            st.info("ℹ️ This RoBERTa model is specifically trained for fake news detection on English texts. Ne pas essayer avec du texte en français les petits loulous !")
+        col_api, col_factcheck, col_news, col_wiki = st.columns(4)
+        with col_api:
+            st.subheader("AI Analysis (RoBERTa)")
+            with st.spinner("AI analysis in progress..."):
+                label_display, ia_confidence, ia_exp = ia_fake_news_score(current_text)
+                st.metric("AI Result", label_display, delta=f"Confidence: {ia_confidence:.1f}%")
+                st.write(ia_exp)
+                st.info("ℹ️ RoBERTa model trained for fake news detection (English only)")
 
-        st.subheader("Google Fact Check Results")
-        if GOOGLE_FACTCHECK_API_KEY:
-            claims = search_fact_check(current_text, GOOGLE_FACTCHECK_API_KEY)
-            if claims:
-                for claim in claims:
-                    st.write(f"- **Claim:** {claim.get('text', 'N/A')}")
-                    for review in claim.get('claimReview', []):
-                        st.write(f"    - Source: [{review.get('publisher', {}).get('name', 'N/A')}]({review.get('url', '')})")
-                        st.write(f"    - Rating: {review.get('textualRating', 'N/A')}")
+        with col_factcheck:
+            st.subheader("Google Fact Check Results")
+            if GOOGLE_FACTCHECK_API_KEY:
+                claims = search_fact_check(current_text, GOOGLE_FACTCHECK_API_KEY)
+                if claims:
+                    for claim in claims:
+                        st.write(f"- **Claim:** {claim.get('text', 'N/A')}")
+                        for review in claim.get('claimReview', []):
+                            st.write(f"    - Source: [{review.get('publisher', {}).get('name', 'N/A')}]({review.get('url', '')})")
+                            st.write(f"    - Rating: {review.get('textualRating', 'N/A')}")
+                else:
+                    st.info("No fact check results found.")
             else:
-                st.info("No fact check results found for this text.")
-        else:
-            st.info("Google Fact Check API key not configured. Please add it to access this feature.")
+                st.info("Google Fact Check API key not configured.")
 
-        st.subheader("Related News Articles (NewsAPI)")
-        if NEWSAPI_KEY:
-            articles = search_newsapi(current_text, NEWSAPI_KEY)
-            if articles:
-                for article in articles:
-                    st.write(f"- [{article.get('title', 'N/A')}]({article.get('url', '')})")
-                    st.write(f"    - Source: {article.get('source', {}).get('name', 'N/A')}")
-                    st.write(f"    - Published: {article.get('publishedAt', 'N/A')}")
-                    st.write(f"    - Description: {article.get('description', 'N/A')}")
+        with col_news:
+            st.subheader("Related News Articles (NewsAPI)")
+            if NEWSAPI_KEY:
+                articles = search_newsapi(current_text, NEWSAPI_KEY)
+                if articles:
+                    for article in articles:
+                        st.write(f"- [{article.get('title', 'N/A')}]({article.get('url', '')})")
+                        st.write(f"    - Source: {article.get('source', {}).get('name', 'N/A')}")
+                        st.write(f"    - Published: {article.get('publishedAt', 'N/A')}")
+                        st.write(f"    - Description: {article.get('description', 'N/A')}")
+                else:
+                    st.info("No related news articles found.")
             else:
-                st.info("No related news articles found.")
-        else:
-            st.info("NewsAPI key not configured. Please add it to access this feature.")
+                st.info("NewsAPI key not configured.")
 
-        st.subheader(f"Wikipedia Search - More info about: {current_text[:50]}{'...' if len(current_text) > 50 else ''}")
-        wiki_results = search_wikipedia(current_text)
-        if wiki_results:
-            for result in wiki_results:
-                title = result.get('title', 'N/A')
-                snippet = result.get('snippet', '').replace('<span class="searchmatch">', '').replace('</span>', '')
-                pageid = result.get('pageid')
-                url = f"https://en.wikipedia.org/?curid={pageid}" if pageid else ""
-                st.write(f"- [{title}]({url})")
-                st.write(f"    - {snippet} ...")
-        else:
-            st.info("No Wikipedia results found for this text.")
+        with col_wiki:
+            st.subheader(f"Wikipedia Search")
+            wiki_results = search_wikipedia(current_text)
+            if wiki_results:
+                for result in wiki_results:
+                    title = result.get('title', 'N/A')
+                    snippet = result.get('snippet', '').replace('<span class="searchmatch">', '').replace('</span>', '')
+                    pageid = result.get('pageid')
+                    url = f"https://en.wikipedia.org/?curid={pageid}" if pageid else ""
+                    st.write(f"- [{title}]({url})")
+                    st.write(f"    - {snippet} ...")
+            else:
+                st.info("No Wikipedia results found.")
     else:
         st.info("Please enter text to analyze.")
