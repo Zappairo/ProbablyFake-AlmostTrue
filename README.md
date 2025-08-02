@@ -138,7 +138,7 @@ Feel free to submit issues, feature requests, or pull requests to improve the de
 
 ## License
 
-This project is open source. Please check the license file for more details.
+This project is open source.
 
 ---
 
