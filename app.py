@@ -133,8 +133,8 @@ with col3:
 if text != st.session_state.input_text and not st.session_state.first_load:
     st.session_state.input_text = text
 
-col1, col2, col3, col4, col5 = st.columns([1,2,3,2,1])
-with col2:
+col1, col2, col3, col4, col5 = st.columns([5,4,2,5,5])
+with col3:
     analyze_clicked = st.button("Analyze")
 with col4:
     reset_clicked = st.button("Reset")
