@@ -7,7 +7,7 @@ import os
 MODEL_NAME = "hamzab/roberta-fake-news-classification"
 
 # Utiliser toute la largeur de la fenêtre
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide", page_title="ProbablyFake Almost True - Fake News Detection", page_icon="🔎​")
 
 @st.cache_resource
 def get_fake_news_pipeline():
